@@ -5,34 +5,52 @@ set(PROJECT_VESRION 0.0.${PATCH_VERSION})
 
 project(ohw_1_helloWorld VERSION ${PROJECT_VESRION})
 
-# configure_file(version.h.in version.h)
+find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+
+configure_file(version.h.in version.h)
 
 add_executable(ohw_1_helloWorld_cli main.cpp)
+
 add_library(ohw_1_helloWorld lib.cpp)
-# add_executable(test_version test_version.cpp)
+add_executable(test_version test_version.cpp)
 
 # set_target_properties(ohw_1_helloWorld_cli ohw_1_helloWorld test_version PROPERTIES
 set_target_properties(ohw_1_helloWorld_cli 
     ohw_1_helloWorld 
-    # test_version 
+    test_version 
     PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED ON
 )
 
-target_link_libraries(ohw_1_helloWorld_cli PRIVATE
-    helloworld
+target_include_directories(ohw_1_helloWorld
+    PRIVATE "${CMAKE_BINARY_DIR}"
 )
 
+##------
+set_target_properties(test_version PROPERTIES
+    COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK
+    INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIR}
+)
+
+target_link_libraries(ohw_1_helloWorld_cli PRIVATE
+    ohw_1_helloWorld
+)
+target_link_libraries(test_version
+    ${Boost_LIBRARIES}
+    ohw_1_helloWorld
+)
+##------
+
 target_compile_options(ohw_1_helloWorld_cli PRIVATE
-        -Wall -Wextra -pedantic -Werror
-    )
-    target_compile_options(ohw_1_helloWorld PRIVATE
-        -Wall -Wextra -pedantic -Werror
-    )
-    # target_compile_options(test_version PRIVATE
-    #     -Wall -Wextra -pedantic -Werror
-    # )
+    -Wall -Wextra -pedantic -Werror
+)
+target_compile_options(ohw_1_helloWorld PRIVATE
+    -Wall -Wextra -pedantic -Werror
+)
+target_compile_options(test_version PRIVATE
+    -Wall -Wextra -pedantic -Werror
+)
 
 install(TARGETS ohw_1_helloWorld_cli RUNTIME DESTINATION bin)
 
@@ -45,3 +63,11 @@ set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
 set(CPACK_PACKAGE_CONTACT example@example.com)
 
 include(CPack)
+
+message(${PROJECT_VERSION_PATCH})
+
+
+
+enable_testing()
+
+add_test(test_version test_version)
