@@ -17,7 +17,9 @@ jobs:
           submodules: true
       - run: sudo apt-get update && sudo apt-get install cmake libboost-test-dev -y
       - run: cmake . -DPATCH_VERSION=${{ github.run_number }}
+      - run: pwd
       - run: cd source/
+      - run: pwd
       - run: cmake --build .
       - run: cmake --build . --target test
       - run: cmake --build . --target package
